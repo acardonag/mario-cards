@@ -456,6 +456,36 @@ function distributePoints(deck) {
     return deckWithPoints.sort(() => Math.random() - 0.5);
 }
 
+// Distribute points for online games (returns separate arrays)
+function distributePointsForOnline(deck) {
+    const totalPoints = 1200;
+    const cardNames = deck.map(card => typeof card === 'string' ? card : card.name);
+    const points = [];
+    
+    // Generate random distribution
+    let remaining = totalPoints;
+    const minPoints = 200;
+    
+    for (let i = 0; i < cardNames.length - 1; i++) {
+        const maxPossible = remaining - (minPoints * (cardNames.length - i - 1));
+        const randomPoints = Math.floor(Math.random() * (maxPossible - minPoints + 1)) + minPoints;
+        points.push(randomPoints);
+        remaining -= randomPoints;
+    }
+    
+    // Last card gets remaining points
+    points.push(remaining);
+    
+    // Shuffle both arrays in same order
+    const combined = cardNames.map((name, i) => ({name, points: points[i]}));
+    combined.sort(() => Math.random() - 0.5);
+    
+    return {
+        deck: combined.map(c => c.name),
+        points: combined.map(c => c.points)
+    };
+}
+
 function showDeckPresentation() {
     showScreen('deckPresentationScreen');
     
@@ -916,7 +946,9 @@ function displayOpponentDeck(deck) {
     if (!opponentShowcase) return;
     
     opponentShowcase.innerHTML = '';
-    deck.forEach(cardName => {
+    deck.forEach(card => {
+        // Handle both string names and card objects
+        const cardName = typeof card === 'string' ? card : (card.name || card.image || card);
         const cardEl = document.createElement('div');
         cardEl.className = 'showcase-card';
         cardEl.innerHTML = `<img src="src/images/${cardName}.png" alt="${cardName}">`;
@@ -1128,6 +1160,8 @@ function updateOnlineBattleUI(gameData, playerRole) {
     console.log('Actualizando UI de batalla online:', { gameData, playerRole });
     
     const state = GameState.battleState;
+    if (!state) return;
+    
     const otherRole = playerRole === 'player1' ? 'player2' : 'player1';
     
     // Update battle state from Firebase data
@@ -1135,25 +1169,36 @@ function updateOnlineBattleUI(gameData, playerRole) {
     state.myRoundsWon = gameData[playerRole].roundsWon || 0;
     state.opponentRoundsWon = gameData[otherRole].roundsWon || 0;
     
-    // Check if opponent has selected
-    const opponentSelection = gameData[otherRole].currentSelection;
-    const mySelection = gameData[playerRole].currentSelection;
-    
-    // If both players have selected, show the reveal
-    if (opponentSelection !== null && mySelection !== null && !state.isRoundComplete) {
-        state.isRoundComplete = true;
-        state.opponentSelectedCard = opponentSelection;
-        revealOnlineRound(gameData, playerRole);
-    }
-    
-    // Update scores
+    // Update scores on screen
     updateScoreDisplay();
+    
+    // Update round number
+    const roundDisplay = document.getElementById('currentRound');
+    if (roundDisplay) {
+        roundDisplay.textContent = state.currentRound;
+    }
 }
 
 // Reveal online round results
 function revealOnlineRound(gameData, playerRole) {
     const state = GameState.battleState;
     const otherRole = playerRole === 'player1' ? 'player2' : 'player1';
+    
+    // Validate data
+    if (!state.opponentSelectedCard && state.opponentSelectedCard !== 0) {
+        console.error('Opponent selected card is invalid:', state.opponentSelectedCard);
+        return;
+    }
+    
+    if (!state.opponentDeck || state.opponentSelectedCard >= state.opponentDeck.length) {
+        console.error('Invalid opponent deck or card index:', state.opponentDeck, state.opponentSelectedCard);
+        return;
+    }
+    
+    if (!state.opponentPoints || state.opponentSelectedCard >= state.opponentPoints.length) {
+        console.error('Invalid opponent points or card index:', state.opponentPoints, state.opponentSelectedCard);
+        return;
+    }
     
     // Remove waiting message
     const waitingMsg = document.getElementById('waitingMessage');

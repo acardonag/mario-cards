@@ -97,9 +97,9 @@ const MatchmakingQueue = {
         const gameId = generateGameCode();
         const gameRef = database.ref('games/' + gameId);
         
-        // Distribute points for both players
-        const player1Deck = distributePoints(GameState.deck);
-        const player2Deck = distributePoints(opponent.deck);
+        // Distribute points for both players (get separate arrays)
+        const player1Data = distributePointsForOnline(GameState.deck);
+        const player2Data = distributePointsForOnline(opponent.deck);
         
         await gameRef.set({
             gameId: gameId,
@@ -109,16 +109,18 @@ const MatchmakingQueue = {
             player1: {
                 id: currentPlayerId,
                 name: GameState.playerName,
-                deck: player1Deck,
-                selectedCard: null,
+                deck: player1Data.deck,
+                points: player1Data.points,
+                currentSelection: null,
                 roundsWon: 0,
                 ready: false
             },
             player2: {
                 id: opponent.playerId,
                 name: opponent.playerName,
-                deck: player2Deck,
-                selectedCard: null,
+                deck: player2Data.deck,
+                points: player2Data.points,
+                currentSelection: null,
                 roundsWon: 0,
                 ready: false
             }
@@ -262,7 +264,7 @@ function handleOnlineGameUpdate(gameData, playerRole) {
         updateOnlineBattleUI(gameData, playerRole);
         
         // Check if both players selected cards
-        if (myData.selectedCard !== null && opponentData.selectedCard !== null) {
+        if (myData.currentSelection !== null && opponentData.currentSelection !== null) {
             resolveOnlineRound(gameData, playerRole);
         }
         
@@ -274,33 +276,40 @@ function handleOnlineGameUpdate(gameData, playerRole) {
 }
 
 // Player selects card in online game
-async function selectOnlineCard(cardIndex, playerRole) {
-    if (!currentGameRef) return;
+async function sendCardSelection(gameId, playerRole, cardIndex) {
+    if (!database) return;
     
-    await currentGameRef.child(playerRole + '/selectedCard').set(cardIndex);
-    playSound('select');
+    const gameRef = database.ref('games/' + gameId);
+    await gameRef.child(playerRole + '/currentSelection').set(cardIndex);
 }
 
 // Resolve online round
 async function resolveOnlineRound(gameData, playerRole) {
-    // Wait a moment for both cards to be visible
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
     const isPlayer1 = playerRole === 'player1';
     const myData = isPlayer1 ? gameData.player1 : gameData.player2;
     const opponentData = isPlayer1 ? gameData.player2 : gameData.player1;
     
-    const myCard = myData.deck[myData.selectedCard];
-    const opponentCard = opponentData.deck[opponentData.selectedCard];
+    // Show opponent's card reveal
+    if (GameState.battleState) {
+        GameState.battleState.opponentSelectedCard = opponentData.currentSelection;
+        revealOnlineRound(gameData, playerRole);
+    }
+    
+    // Wait a moment for cards to be visible
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Get points from separate arrays
+    const myPoints = myData.points[myData.currentSelection];
+    const opponentPoints = opponentData.points[opponentData.currentSelection];
     
     // Determine winner (only player1 updates the database to avoid conflicts)
     if (isPlayer1) {
         let player1RoundsWon = gameData.player1.roundsWon;
         let player2RoundsWon = gameData.player2.roundsWon;
         
-        if (myCard.battlePoints > opponentCard.battlePoints) {
+        if (myPoints > opponentPoints) {
             player1RoundsWon++;
-        } else if (opponentCard.battlePoints > myCard.battlePoints) {
+        } else if (opponentPoints > myPoints) {
             player2RoundsWon++;
         }
         
@@ -326,8 +335,8 @@ async function nextOnlineRound() {
     
     await currentGameRef.update({
         currentRound: gameData.currentRound + 1,
-        'player1/selectedCard': null,
-        'player2/selectedCard': null
+        'player1/currentSelection': null,
+        'player2/currentSelection': null
     });
 }
 
