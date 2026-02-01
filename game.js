@@ -910,6 +910,57 @@ function hideMatchmakingScreen() {
     // Don't change screen here - let the calling function decide
 }
 
+// Display opponent deck in presentation screen
+function displayOpponentDeck(deck) {
+    const opponentShowcase = document.getElementById('cpuShowcaseCards');
+    if (!opponentShowcase) return;
+    
+    opponentShowcase.innerHTML = '';
+    deck.forEach(cardName => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'showcase-card';
+        cardEl.innerHTML = `<img src="src/images/${cardName}.png" alt="${cardName}">`;
+        opponentShowcase.appendChild(cardEl);
+    });
+}
+
+// Display opponent hand (face down) in battle arena
+function displayOpponentHand(cardCount) {
+    const opponentHandContainer = document.querySelector('.opponent-cards');
+    if (!opponentHandContainer) return;
+    
+    opponentHandContainer.innerHTML = '';
+    for (let i = 0; i < cardCount; i++) {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'opponent-card-back';
+        cardEl.innerHTML = '🃏';
+        opponentHandContainer.appendChild(cardEl);
+    }
+}
+
+// Display player hand with points in battle arena
+function displayPlayerHand(deck, points) {
+    const handContainer = document.getElementById('playerHand');
+    if (!handContainer) return;
+    
+    handContainer.innerHTML = '';
+    
+    deck.forEach((cardName, index) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'hand-card';
+        cardEl.dataset.index = index;
+        cardEl.innerHTML = `
+            <img src="src/images/${cardName}.png" alt="${cardName}">
+            <div class="hand-card-info">
+                <div class="hand-card-name">${cardName}</div>
+                <div class="hand-card-points">⚡ ${points[index]}</div>
+            </div>
+        `;
+        
+        handContainer.appendChild(cardEl);
+    });
+}
+
 // Start matchmaking timer
 function startMatchmakingTimer() {
     const timerElement = document.getElementById('matchmakingTimer');
@@ -973,7 +1024,7 @@ function showOnlineBattle(gameData, playerRole) {
     if (continueBtn) {
         continueBtn.onclick = () => {
             playSound('click');
-            showScreen('battleArena');
+            showScreen('battleScreen');
             setupOnlineBattleArena();
         };
     }
@@ -984,25 +1035,34 @@ function setupOnlineBattleArena() {
     const state = GameState.battleState;
     
     // Display round number
-    const roundDisplay = document.getElementById('roundDisplay');
+    const roundDisplay = document.getElementById('currentRound');
     if (roundDisplay) {
-        roundDisplay.textContent = `Ronda ${state.currentRound}/4`;
+        roundDisplay.textContent = state.currentRound;
     }
     
     // Display scores
     updateScoreDisplay();
     
+    // Update player name
+    const playerNameEl = document.getElementById('playerNameBattle');
+    if (playerNameEl) {
+        playerNameEl.textContent = GameState.playerName;
+    }
+    
+    // Update opponent name
+    const cpuNameEl = document.querySelector('.cpu-name-battle');
+    if (cpuNameEl) {
+        cpuNameEl.textContent = GameState.opponentData?.name || 'Oponente';
+    }
+    
     // Display player's hand
     displayPlayerHand(state.myDeck, state.myPoints);
     
-    // Display opponent's hand (face down)
-    displayOpponentHand(state.opponentDeck.length);
-    
     // Clear battlefield
-    const playerField = document.getElementById('playerCardField');
-    const opponentField = document.getElementById('opponentCardField');
-    if (playerField) playerField.innerHTML = '';
-    if (opponentField) opponentField.innerHTML = '';
+    const playerField = document.getElementById('playerSelectedCard');
+    const opponentField = document.getElementById('cpuSelectedCard');
+    if (playerField) playerField.innerHTML = '<div class="card-placeholder">Selecciona tu carta</div>';
+    if (opponentField) opponentField.innerHTML = '<div class="card-placeholder">?</div>';
     
     // Add online card selection handlers
     const handCards = document.querySelectorAll('.hand-card');
@@ -1030,13 +1090,11 @@ function selectOnlineCard(cardIndex) {
     const selectedCard = state.myDeck[cardIndex];
     const selectedPoints = state.myPoints[cardIndex];
     
-    const playerField = document.getElementById('playerCardField');
+    const playerField = document.getElementById('playerSelectedCard');
     if (playerField) {
         playerField.innerHTML = `
-            <div class="field-card">
-                <img src="src/images/${selectedCard}.png" alt="${selectedCard}">
-                <div class="card-power">${selectedPoints}</div>
-            </div>
+            <img src="src/images/${selectedCard}.png" alt="${selectedCard}" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="card-power" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 8px 15px; border-radius: 10px; font-size: 1.5rem; font-weight: bold;">${selectedPoints}</div>
         `;
     }
     
@@ -1053,7 +1111,7 @@ function selectOnlineCard(cardIndex) {
 
 // Show waiting for opponent message
 function showWaitingForOpponent() {
-    const battleArena = document.getElementById('battleArena');
+    const battleScreen = document.getElementById('battleScreen');
     let waitingMsg = document.getElementById('waitingMessage');
     
     if (!waitingMsg) {
@@ -1061,7 +1119,7 @@ function showWaitingForOpponent() {
         waitingMsg.id = 'waitingMessage';
         waitingMsg.className = 'waiting-message';
         waitingMsg.innerHTML = '⏳ Esperando al oponente...';
-        battleArena.appendChild(waitingMsg);
+        battleScreen.appendChild(waitingMsg);
     }
 }
 
@@ -1105,13 +1163,11 @@ function revealOnlineRound(gameData, playerRole) {
     const opponentCard = state.opponentDeck[state.opponentSelectedCard];
     const opponentPoints = state.opponentPoints[state.opponentSelectedCard];
     
-    const opponentField = document.getElementById('opponentCardField');
+    const opponentField = document.getElementById('cpuSelectedCard');
     if (opponentField) {
         opponentField.innerHTML = `
-            <div class="field-card card-reveal">
-                <img src="src/images/${opponentCard}.png" alt="${opponentCard}">
-                <div class="card-power">${opponentPoints}</div>
-            </div>
+            <img src="src/images/${opponentCard}.png" alt="${opponentCard}" style="width: 100%; height: 100%; object-fit: cover;" class="card-reveal">
+            <div class="card-power" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 8px 15px; border-radius: 10px; font-size: 1.5rem; font-weight: bold;">${opponentPoints}</div>
         `;
     }
     
@@ -1178,16 +1234,22 @@ function showOnlineResults(myRoundsWon, opponentRoundsWon) {
     saveGame();
     
     // Show results screen
-    showScreen('battleResults');
+    showScreen('battleResultScreen');
     
     const resultTitle = document.getElementById('resultTitle');
-    const resultSubtitle = document.getElementById('resultSubtitle');
-    const rewardsDiv = document.getElementById('rewardsDisplay');
+    const resultSubtitle = document.getElementById('resultIcon');
+    const rewardsDiv = document.getElementById('resultRewards');
+    
+    // Update final rounds display
+    const finalPlayerRounds = document.getElementById('finalPlayerRounds');
+    const finalCpuRounds = document.getElementById('finalCpuRounds');
+    if (finalPlayerRounds) finalPlayerRounds.textContent = myRoundsWon;
+    if (finalCpuRounds) finalCpuRounds.textContent = opponentRoundsWon;
     
     if (won) {
         resultTitle.textContent = '¡VICTORIA!';
         resultTitle.style.color = '#43B047';
-        resultSubtitle.textContent = `Ganaste ${myRoundsWon}-${opponentRoundsWon}`;
+        if (resultSubtitle) resultSubtitle.textContent = '🏆';
         rewardsDiv.innerHTML = `
             <div class="reward-item">⭐ +3 Estrellas</div>
             <div class="reward-item">🪙 +100 Monedas</div>
@@ -1195,7 +1257,7 @@ function showOnlineResults(myRoundsWon, opponentRoundsWon) {
     } else if (tie) {
         resultTitle.textContent = '¡EMPATE!';
         resultTitle.style.color = '#F8981D';
-        resultSubtitle.textContent = `${myRoundsWon}-${opponentRoundsWon}`;
+        if (resultSubtitle) resultSubtitle.textContent = '🤝';
         rewardsDiv.innerHTML = `
             <div class="reward-item">⭐ +1 Estrella</div>
             <div class="reward-item">🪙 +30 Monedas</div>
@@ -1203,12 +1265,12 @@ function showOnlineResults(myRoundsWon, opponentRoundsWon) {
     } else {
         resultTitle.textContent = 'DERROTA';
         resultTitle.style.color = '#E52521';
-        resultSubtitle.textContent = `Perdiste ${myRoundsWon}-${opponentRoundsWon}`;
+        if (resultSubtitle) resultSubtitle.textContent = '😔';
         rewardsDiv.innerHTML = `<div class="reward-item">Sigue intentando...</div>`;
     }
     
     // Setup return button
-    const returnBtn = document.getElementById('returnMenuBtn');
+    const returnBtn = document.getElementById('backToMenuBtn');
     if (returnBtn) {
         returnBtn.onclick = () => {
             playSound('click');
@@ -1227,11 +1289,11 @@ function showOnlineResults(myRoundsWon, opponentRoundsWon) {
 
 // Helper: Show round result message
 function showRoundResult(text) {
-    const battleArena = document.getElementById('battleArena');
+    const battleScreen = document.getElementById('battleScreen');
     const resultMsg = document.createElement('div');
     resultMsg.className = 'round-result-message';
     resultMsg.textContent = text;
-    battleArena.appendChild(resultMsg);
+    battleScreen.appendChild(resultMsg);
     
     setTimeout(() => {
         resultMsg.remove();
@@ -1241,8 +1303,8 @@ function showRoundResult(text) {
 // Helper: Update score display
 function updateScoreDisplay() {
     const state = GameState.battleState;
-    const myScoreEl = document.getElementById('myScore');
-    const opponentScoreEl = document.getElementById('opponentScore');
+    const myScoreEl = document.getElementById('playerRoundsWon');
+    const opponentScoreEl = document.getElementById('cpuRoundsWon');
     
     if (myScoreEl) myScoreEl.textContent = state.myRoundsWon;
     if (opponentScoreEl) opponentScoreEl.textContent = state.opponentRoundsWon;

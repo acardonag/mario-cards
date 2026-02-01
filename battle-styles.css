@@ -335,6 +335,42 @@
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* Opponent Cards (Face Down) */
+.opponent-cards {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.opponent-card-back {
+    width: 100px;
+    aspect-ratio: 2/3;
+    border: 3px solid var(--mario-red);
+    border-radius: 10px;
+    background: linear-gradient(135deg, #8B0000, var(--mario-red));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 15px var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.opponent-card-back::before {
+    content: '?';
+    position: absolute;
+    font-size: 4rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.1);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 /* Battle Message */
 .battle-message-container {
     position: absolute;
