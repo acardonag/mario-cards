@@ -996,15 +996,34 @@ function displayPlayerHand(deck, points) {
     
     handContainer.innerHTML = '';
     
+    // If no parameters provided, use CPU battle mode data
+    if (!deck && GameState.battle) {
+        deck = GameState.battle.playerDeck;
+        // In CPU mode, cards already have battlePoints property
+    }
+    
+    if (!deck) {
+        console.error('❌ No deck provided to displayPlayerHand');
+        return;
+    }
+    
     deck.forEach((card, index) => {
+        // Skip used cards in CPU mode
+        if (GameState.battle?.usedPlayerCards?.includes(index)) return;
+        
         // Handle both string names and card objects
-        let imagePath, displayName;
+        let imagePath, displayName, cardPoints;
+        
         if (typeof card === 'string') {
+            // Online mode: strings with separate points array
             imagePath = card.includes('.png') ? card : `${card}.png`;
             displayName = card.replace('.png', '');
+            cardPoints = points ? points[index] : '???';
         } else {
+            // CPU mode: card objects with battlePoints
             imagePath = card.image || `${card.name}.png`;
             displayName = card.name;
+            cardPoints = card.battlePoints || '???';
         }
         
         const cardEl = document.createElement('div');
@@ -1014,9 +1033,14 @@ function displayPlayerHand(deck, points) {
             <img src="src/images/${imagePath}" alt="${displayName}">
             <div class="hand-card-info">
                 <div class="hand-card-name">${displayName}</div>
-                <div class="hand-card-points">⚡ ${points[index]}</div>
+                <div class="hand-card-points">⚡ ${cardPoints}</div>
             </div>
         `;
+        
+        // Add click handler for CPU mode
+        if (GameState.battle && !GameState.isOnlineGame) {
+            cardEl.addEventListener('click', () => selectPlayerCard(index));
+        }
         
         handContainer.appendChild(cardEl);
     });
