@@ -195,11 +195,7 @@ function updatePlayerDisplay() {
 
 // Deck Builder Setup
 function setupDeckBuilder() {
-    // Back button
-    document.getElementById('backFromDeckBtn').addEventListener('click', () => {
-        playSound('click');
-        showScreen('mainMenu');
-    });
+    // Note: Close button event is handled globally in DOMContentLoaded
     
     // Reset deck button
     document.getElementById('resetDeckBtn').addEventListener('click', () => {
@@ -325,18 +321,7 @@ function updateDeckSlots() {
 
 // Settings Setup
 function setupSettings() {
-    // Back button - use direct reference to avoid issues
-    const backBtn = document.getElementById('backFromSettingsBtn');
-    if (backBtn) {
-        backBtn.addEventListener('click', () => {
-            playSound('click');
-            const settingsInput = document.getElementById('settingsPlayerName');
-            const changeNameBtn = document.getElementById('changeNameBtn');
-            if (settingsInput) settingsInput.value = '';
-            if (changeNameBtn) changeNameBtn.disabled = true;
-            showScreen('mainMenu');
-        });
-    }
+    // Note: Close button event is handled globally in DOMContentLoaded
     
     const settingsInput = document.getElementById('settingsPlayerName');
     const changeNameBtn = document.getElementById('changeNameBtn');
@@ -824,6 +809,27 @@ function loadGame() {
 // Initialize game when page loads
 window.addEventListener('DOMContentLoaded', () => {
     initGame();
+    
+    // Add global click handler for all close buttons
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        
+        // Handle deck close button
+        if (target.id === 'backFromDeckBtn' || target.closest('#backFromDeckBtn')) {
+            playSound('click');
+            showScreen('mainMenu');
+        }
+        
+        // Handle settings close button
+        if (target.id === 'backFromSettingsBtn' || target.closest('#backFromSettingsBtn')) {
+            playSound('click');
+            const settingsInput = document.getElementById('settingsPlayerName');
+            const changeNameBtn = document.getElementById('changeNameBtn');
+            if (settingsInput) settingsInput.value = '';
+            if (changeNameBtn) changeNameBtn.disabled = true;
+            showScreen('mainMenu');
+        }
+    });
 });
 
 // Save game before page unload
