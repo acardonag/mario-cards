@@ -170,12 +170,6 @@ function setupMainMenu() {
         showScreen('settingsScreen');
         updateSettingsDisplay();
     });
-
-    // Back buttons
-    document.getElementById('backFromBattleBtn').addEventListener('click', () => {
-        playSound('click');
-        showScreen('mainMenu');
-    });
 }
 
 function updatePlayerDisplay() {
@@ -810,24 +804,30 @@ function loadGame() {
 window.addEventListener('DOMContentLoaded', () => {
     initGame();
     
-    // Add global click handler for all close buttons
-    document.addEventListener('click', (e) => {
+    // Add global click handler for all close buttons using event delegation
+    document.body.addEventListener('click', (e) => {
         const target = e.target;
         
         // Handle deck close button
-        if (target.id === 'backFromDeckBtn' || target.closest('#backFromDeckBtn')) {
+        if (target.id === 'backFromDeckBtn') {
+            e.preventDefault();
+            e.stopPropagation();
             playSound('click');
             showScreen('mainMenu');
+            return;
         }
         
         // Handle settings close button
-        if (target.id === 'backFromSettingsBtn' || target.closest('#backFromSettingsBtn')) {
+        if (target.id === 'backFromSettingsBtn') {
+            e.preventDefault();
+            e.stopPropagation();
             playSound('click');
             const settingsInput = document.getElementById('settingsPlayerName');
             const changeNameBtn = document.getElementById('changeNameBtn');
             if (settingsInput) settingsInput.value = '';
             if (changeNameBtn) changeNameBtn.disabled = true;
             showScreen('mainMenu');
+            return;
         }
     });
 });
