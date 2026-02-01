@@ -800,6 +800,67 @@ function loadGame() {
     return false;
 }
 
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then((registration) => {
+                console.log('✅ Service Worker registered successfully:', registration.scope);
+            })
+            .catch((error) => {
+                console.log('❌ Service Worker registration failed:', error);
+            });
+    });
+}
+
+// PWA Install Prompt
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    // Show install button/notification
+    showInstallNotification();
+});
+
+function showInstallNotification() {
+    // Only show once per session
+    if (sessionStorage.getItem('installPromptShown')) return;
+    
+    setTimeout(() => {
+        const installMessage = document.createElement('div');
+        installMessage.className = 'install-prompt';
+        installMessage.innerHTML = `
+            <div class="install-prompt-content">
+                <p>📱 ¡Instala Mario Cards en tu dispositivo!</p>
+                <div class="install-prompt-actions">
+                    <button id="installBtn" class="btn btn-primary">Instalar</button>
+                    <button id="dismissInstallBtn" class="btn btn-secondary">Ahora no</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(installMessage);
+        
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to install prompt: ${outcome}`);
+                deferredPrompt = null;
+            }
+            installMessage.remove();
+            sessionStorage.setItem('installPromptShown', 'true');
+        });
+        
+        document.getElementById('dismissInstallBtn').addEventListener('click', () => {
+            installMessage.remove();
+            sessionStorage.setItem('installPromptShown', 'true');
+        });
+    }, 3000);
+}
+
 // Initialize game when page loads
 window.addEventListener('DOMContentLoaded', () => {
     initGame();

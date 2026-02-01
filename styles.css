@@ -902,6 +902,40 @@ body::before {
     text-align: center;
 }
 
+/* PWA Install Prompt */
+.install-prompt {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px var(--shadow);
+    z-index: 10000;
+    animation: slideInUp 0.5s ease-out;
+    max-width: 90%;
+    width: 400px;
+}
+
+.install-prompt-content p {
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.install-prompt-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.install-prompt-actions .btn {
+    font-size: 1rem;
+    padding: 10px 20px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .logo-text {
