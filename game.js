@@ -1063,37 +1063,32 @@ function showOnlineBattle(gameData, playerRole) {
         isRoundComplete: false
     };
     
-    // Show battle presentation screen
-    showScreen('battlePresentation');
+    console.log('Battle state initialized:', GameState.battleState);
     
-    // Display opponent info
-    const opponentNameEl = document.getElementById('opponentName');
-    if (opponentNameEl) {
-        opponentNameEl.textContent = GameState.opponentData.name || 'Oponente';
-    }
-    
-    // Show opponent's deck
-    displayOpponentDeck(GameState.battleState.opponentDeck);
-    
-    // Set up continue button to battle arena
-    const continueBtn = document.getElementById('continueToBattleBtn');
-    if (continueBtn) {
-        continueBtn.onclick = () => {
-            playSound('click');
-            showScreen('battleScreen');
-            setupOnlineBattleArena();
-        };
-    }
+    // Go directly to battle screen (skip presentation for online)
+    showScreen('battleScreen');
+    setupOnlineBattleArena();
 }
 
 // Setup online battle arena
 function setupOnlineBattleArena() {
+    console.log('⚔️ Setting up online battle arena');
     const state = GameState.battleState;
+    
+    if (!state) {
+        console.error('❌ Battle state is null!');
+        return;
+    }
+    
+    console.log('Battle state:', state);
     
     // Display round number
     const roundDisplay = document.getElementById('currentRound');
     if (roundDisplay) {
         roundDisplay.textContent = state.currentRound;
+        console.log('✅ Round display set to:', state.currentRound);
+    } else {
+        console.error('❌ Round display element not found');
     }
     
     // Display scores
@@ -1109,19 +1104,30 @@ function setupOnlineBattleArena() {
     const cpuNameEl = document.querySelector('.cpu-name-battle');
     if (cpuNameEl) {
         cpuNameEl.textContent = GameState.opponentData?.name || 'Oponente';
+        console.log('✅ Opponent name set to:', GameState.opponentData?.name);
+    } else {
+        console.error('❌ CPU name element not found');
     }
     
     // Display player's hand
+    console.log('📋 Displaying player hand:', state.myDeck, state.myPoints);
     displayPlayerHand(state.myDeck, state.myPoints);
     
     // Clear battlefield
     const playerField = document.getElementById('playerSelectedCard');
     const opponentField = document.getElementById('cpuSelectedCard');
-    if (playerField) playerField.innerHTML = '<div class="card-placeholder">Selecciona tu carta</div>';
-    if (opponentField) opponentField.innerHTML = '<div class="card-placeholder">?</div>';
+    if (playerField) {
+        playerField.innerHTML = '<div class="card-placeholder">Selecciona tu carta</div>';
+        console.log('✅ Player field cleared');
+    }
+    if (opponentField) {
+        opponentField.innerHTML = '<div class="card-placeholder">?</div>';
+        console.log('✅ Opponent field cleared');
+    }
     
     // Add online card selection handlers
     const handCards = document.querySelectorAll('.hand-card');
+    console.log('🃏 Hand cards found:', handCards.length);
     handCards.forEach((card, index) => {
         card.onclick = () => {
             if (state.mySelectedCard !== null) return; // Already selected
@@ -1130,6 +1136,8 @@ function setupOnlineBattleArena() {
             selectOnlineCard(index);
         };
     });
+    
+    console.log('✅ Online battle arena setup complete');
 }
 
 // Select card in online battle
