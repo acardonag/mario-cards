@@ -1,0 +1,571 @@
+/* ===== DECK PRESENTATION SCREEN ===== */
+#deckPresentationScreen {
+    background: linear-gradient(135deg, #2B2B2B 0%, #1a1a1a 100%);
+}
+
+.presentation-container {
+    text-align: center;
+    width: 90%;
+    max-width: 1000px;
+}
+
+.presentation-title {
+    font-size: 2.5rem;
+    color: var(--mario-yellow);
+    text-shadow: 3px 3px 6px var(--shadow);
+    margin-bottom: 40px;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+.deck-showcase {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.player-deck-showcase,
+.cpu-deck-showcase {
+    flex: 1;
+}
+
+.player-showcase-title,
+.cpu-showcase-title {
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.player-showcase-title {
+    color: var(--mario-blue);
+}
+
+.cpu-showcase-title {
+    color: var(--mario-red);
+}
+
+.showcase-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.showcase-card {
+    aspect-ratio: 2/3;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px var(--shadow);
+    animation: slideInUp 0.6s ease-out;
+}
+
+.showcase-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.vs-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vs-text {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--mario-yellow);
+    text-shadow: 3px 3px 6px var(--shadow);
+    animation: rotate 2s linear infinite;
+}
+
+.presentation-message {
+    font-size: 1.3rem;
+    color: white;
+    animation: blink 1s ease-in-out infinite;
+}
+
+/* ===== BATTLE SCREEN ===== */
+#battleScreen {
+    background: url('src/images/batalla.png') center/cover no-repeat;
+    position: relative;
+}
+
+#battleScreen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 0;
+}
+
+.battle-arena {
+    width: 95%;
+    max-width: 1200px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+}
+
+/* Battle Header */
+.battle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px var(--shadow);
+}
+
+.player-info,
+.cpu-info {
+    flex: 1;
+    text-align: center;
+}
+
+.player-name-battle,
+.cpu-name-battle {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--dark-bg);
+    margin-bottom: 5px;
+}
+
+.player-name-battle {
+    color: var(--mario-blue);
+}
+
+.cpu-name-battle {
+    color: var(--mario-red);
+}
+
+.rounds-won {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.rounds-won span {
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: var(--mario-green);
+}
+
+.round-info {
+    flex: 1;
+    text-align: center;
+}
+
+.round-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--mario-purple);
+}
+
+/* Battle Field */
+.battle-field {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex: 1;
+    padding: 20px 0;
+    gap: 20px;
+}
+
+.player-card-area,
+.cpu-card-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.selected-card {
+    width: 200px;
+    aspect-ratio: 2/3;
+    background: rgba(255, 255, 255, 0.95);
+    border: 4px solid var(--mario-blue);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px var(--shadow);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.cpu-card-area .selected-card {
+    border-color: var(--mario-red);
+}
+
+.selected-card.winner {
+    border-color: var(--mario-yellow);
+    box-shadow: 0 0 30px var(--mario-yellow);
+    animation: winner-glow 1s ease-in-out infinite;
+}
+
+@keyframes winner-glow {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.card-placeholder {
+    font-size: 1.5rem;
+    color: #999;
+    text-align: center;
+}
+
+.selected-card img {
+    width: 100%;
+    height: 70%;
+    object-fit: cover;
+}
+
+.card-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--dark-bg);
+    padding: 5px;
+    text-align: center;
+}
+
+.card-points-hidden,
+.card-points {
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 5px;
+}
+
+.card-points-hidden {
+    color: #999;
+}
+
+.card-points.revealed {
+    color: var(--mario-red);
+    animation: revealPoints 0.5s ease-out;
+}
+
+@keyframes revealPoints {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Player Hand */
+.player-hand {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px var(--shadow);
+}
+
+.hand-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--dark-bg);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.hand-cards {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.hand-card {
+    width: 100px;
+    aspect-ratio: 2/3;
+    border: 3px solid var(--mario-blue);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.hand-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px var(--shadow);
+}
+
+.hand-card img {
+    width: 100%;
+    height: 70%;
+    object-fit: cover;
+}
+
+.hand-card-info {
+    height: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--mario-blue), #0066CC);
+}
+
+.hand-card-name {
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 2px 3px;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hand-card-points {
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 2px;
+    color: var(--mario-yellow);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Battle Message */
+.battle-message-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+}
+
+.round-result-message {
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 15px;
+    font-size: 2rem;
+    font-weight: bold;
+    box-shadow: 0 10px 30px var(--shadow);
+    animation: messagePopup 0.5s ease-out;
+}
+
+@keyframes messagePopup {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ===== BATTLE RESULT SCREEN ===== */
+#battleResultScreen {
+    background: linear-gradient(135deg, var(--mario-purple) 0%, #4A148C 100%);
+}
+
+.result-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 30px;
+    box-shadow: 0 20px 60px var(--shadow);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    animation: slideInUp 0.6s ease-out;
+}
+
+.result-title {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px var(--shadow);
+}
+
+.result-icon {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    animation: bounce 1s ease-in-out infinite;
+}
+
+.result-stats {
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.result-stat {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    font-size: 1.2rem;
+}
+
+.result-label {
+    color: #666;
+}
+
+.result-value {
+    font-weight: bold;
+    color: var(--mario-blue);
+    font-size: 1.5rem;
+}
+
+.result-rewards {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.reward-item {
+    background: linear-gradient(135deg, var(--mario-yellow), var(--mario-orange));
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-shadow: 0 5px 15px var(--shadow);
+}
+
+.result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .presentation-title {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+    
+    .deck-showcase {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .vs-text {
+        font-size: 2rem;
+    }
+    
+    .showcase-cards {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+    }
+    
+    .battle-arena {
+        padding: 10px;
+    }
+    
+    .battle-header {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .player-name-battle,
+    .cpu-name-battle {
+        font-size: 1rem;
+    }
+    
+    .rounds-won {
+        font-size: 0.9rem;
+    }
+    
+    .rounds-won span {
+        font-size: 1.1rem;
+    }
+    
+    .round-number {
+        font-size: 1.2rem;
+    }
+    
+    .battle-field {
+        padding: 10px 0;
+        gap: 10px;
+    }
+    
+    .selected-card {
+        width: 140px;
+    }
+    
+    .player-hand {
+        padding: 10px;
+    }
+    
+    .hand-title {
+        font-size: 1rem;
+    }
+    
+    .hand-cards {
+        gap: 8px;
+    }
+    
+    .hand-card {
+        width: 70px;
+    }
+    
+    .hand-card-name {
+        font-size: 0.6rem;
+    }
+    
+    .hand-card-points {
+        font-size: 0.75rem;
+    }
+    
+    .round-result-message {
+        padding: 15px 25px;
+        font-size: 1.5rem;
+    }
+    
+    .result-container {
+        padding: 25px 15px;
+    }
+    
+    .result-title {
+        font-size: 2rem;
+    }
+    
+    .result-icon {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .presentation-title {
+        font-size: 1.5rem;
+    }
+    
+    .showcase-cards {
+        gap: 3px;
+    }
+    
+    .selected-card {
+        width: 120px;
+    }
+    
+    .hand-card {
+        width: 65px;
+    }
+    
+    .hand-card-name {
+        font-size: 0.55rem;
+        padding: 1px 2px;
+    }
+    
+    .hand-card-points {
+        font-size: 0.7rem;
+    }
+    
+    .card-name {
+        font-size: 0.9rem;
+    }
+    
+    .round-result-message {
+        padding: 12px 20px;
+        font-size: 1.2rem;
+    }
+}

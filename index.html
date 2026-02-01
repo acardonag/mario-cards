@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario Cards - Juego de Cartas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="battle-styles.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splashScreen" class="screen active">
+        <div class="splash-content">
+            <div class="game-logo">
+                <h1 class="logo-text">
+                    <span class="letter m">M</span>
+                    <span class="letter a">A</span>
+                    <span class="letter r">R</span>
+                    <span class="letter i">I</span>
+                    <span class="letter o">O</span>
+                </h1>
+                <h2 class="subtitle">CARDS</h2>
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p class="loading-text">Cargando...</p>
+        </div>
+    </div>
+
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="screen">
+        <div class="welcome-container">
+            <div class="welcome-header">
+                <h1 class="welcome-title">¡Bienvenido!</h1>
+                <div class="mario-icons">
+                    <span class="coin">🪙</span>
+                    <span class="mushroom">🍄</span>
+                    <span class="star">⭐</span>
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <label for="playerName" class="input-label">Ingresa tu nombre:</label>
+                <input 
+                    type="text" 
+                    id="playerName" 
+                    class="player-input" 
+                    placeholder="Tu nombre aquí..."
+                    maxlength="15"
+                    autocomplete="off"
+                >
+                <button id="startBtn" class="btn btn-primary" disabled>
+                    <span class="btn-text">¡Comenzar!</span>
+                    <span class="btn-icon">▶</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Menu Screen -->
+    <div id="mainMenu" class="screen">
+        <div class="menu-container">
+            <div class="menu-header">
+                <h1 class="menu-title">Mario Cards</h1>
+                <p class="player-greeting">¡Hola, <span id="displayName" class="player-name-display"></span>!</p>
+            </div>
+
+            <div class="menu-options">
+                <button class="menu-btn battle-btn" id="battleBtn">
+                    <div class="btn-content">
+                        <span class="btn-emoji">⚔️</span>
+                        <span class="btn-label">Iniciar Batalla</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </button>
+
+                <button class="menu-btn deck-btn" id="deckBtn">
+                    <div class="btn-content">
+                        <span class="btn-emoji">🃏</span>
+                        <span class="btn-label">Definir Mazo</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </button>
+
+                <button class="menu-btn collection-btn" id="collectionBtn">
+                    <div class="btn-content">
+                        <span class="btn-emoji">📚</span>
+                        <span class="btn-label">Colección</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </button>
+
+                <button class="menu-btn settings-btn" id="settingsBtn">
+                    <div class="btn-content">
+                        <span class="btn-emoji">⚙️</span>
+                        <span class="btn-label">Ajustes</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </button>
+            </div>
+
+            <div class="menu-footer">
+                <div class="player-stats">
+                    <div class="stat">
+                        <span class="stat-icon">🏆</span>
+                        <span class="stat-value">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-value">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">🪙</span>
+                        <span class="stat-value">100</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deck Presentation Screen -->
+    <div id="deckPresentationScreen" class="screen">
+        <div class="presentation-container">
+            <h1 class="presentation-title">¡Preparando Batalla!</h1>
+            
+            <div class="deck-showcase">
+                <div class="player-deck-showcase">
+                    <h2 class="player-showcase-title">Tu Mazo</h2>
+                    <div class="showcase-cards" id="playerShowcaseCards"></div>
+                </div>
+                
+                <div class="vs-divider">
+                    <span class="vs-text">VS</span>
+                </div>
+                
+                <div class="cpu-deck-showcase">
+                    <h2 class="cpu-showcase-title">CPU</h2>
+                    <div class="showcase-cards" id="cpuShowcaseCards"></div>
+                </div>
+            </div>
+            
+            <div class="presentation-message">Cargando batalla...</div>
+        </div>
+    </div>
+
+    <!-- Battle Screen -->
+    <div id="battleScreen" class="screen">
+        <div class="battle-arena">
+            <!-- Battle Header -->
+            <div class="battle-header">
+                <div class="player-info">
+                    <div class="player-name-battle" id="playerNameBattle"></div>
+                    <div class="rounds-won">Rondas: <span id="playerRoundsWon">0</span></div>
+                </div>
+                
+                <div class="round-info">
+                    <div class="round-number">Ronda <span id="currentRound">1</span>/4</div>
+                </div>
+                
+                <div class="cpu-info">
+                    <div class="cpu-name-battle">CPU</div>
+                    <div class="rounds-won">Rondas: <span id="cpuRoundsWon">0</span></div>
+                </div>
+            </div>
+            
+            <!-- Battle Field -->
+            <div class="battle-field">
+                <div class="player-card-area">
+                    <div class="selected-card" id="playerSelectedCard">
+                        <div class="card-placeholder">Selecciona tu carta</div>
+                    </div>
+                </div>
+                
+                <div class="cpu-card-area">
+                    <div class="selected-card" id="cpuSelectedCard">
+                        <div class="card-placeholder">?</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Player Hand -->
+            <div class="player-hand">
+                <div class="hand-title">Tus Cartas</div>
+                <div class="hand-cards" id="playerHand"></div>
+            </div>
+            
+            <!-- Battle Message -->
+            <div class="battle-message-container" id="battleMessageContainer"></div>
+        </div>
+    </div>
+    
+    <!-- Battle Result Screen -->
+    <div id="battleResultScreen" class="screen">
+        <div class="result-container">
+            <h1 class="result-title" id="resultTitle"></h1>
+            <div class="result-icon" id="resultIcon"></div>
+            <div class="result-stats">
+                <div class="result-stat">
+                    <span class="result-label">Rondas Ganadas:</span>
+                    <span class="result-value" id="finalPlayerRounds">0</span>
+                </div>
+                <div class="result-stat">
+                    <span class="result-label">CPU:</span>
+                    <span class="result-value" id="finalCpuRounds">0</span>
+                </div>
+            </div>
+            <div class="result-rewards" id="resultRewards"></div>
+            <div class="result-actions">
+                <button class="btn btn-primary" id="playAgainBtn">Jugar de Nuevo</button>
+                <button class="btn btn-secondary" id="backToMenuBtn">Menú Principal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deck Screen -->
+    <div id="deckScreen" class="screen">
+        <div class="deck-builder">
+            <div class="deck-header">
+                <h1 class="deck-title">Construye tu Mazo</h1>
+                <button class="btn-close" id="backFromDeckBtn">✕</button>
+            </div>
+
+            <!-- Selected Cards Slots -->
+            <div class="deck-slots">
+                <div class="slot-label">Tu Mazo (4 cartas):</div>
+                <div class="slots-container">
+                    <div class="card-slot empty" data-slot="0">
+                        <span class="slot-number">1</span>
+                    </div>
+                    <div class="card-slot empty" data-slot="1">
+                        <span class="slot-number">2</span>
+                    </div>
+                    <div class="card-slot empty" data-slot="2">
+                        <span class="slot-number">3</span>
+                    </div>
+                    <div class="card-slot empty" data-slot="3">
+                        <span class="slot-number">4</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Characters Grid -->
+            <div class="characters-section">
+                <div class="section-title">Personajes Disponibles:</div>
+                <div class="characters-grid" id="charactersGrid">
+                    <!-- Characters will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="deck-actions">
+                <button class="btn btn-reset" id="resetDeckBtn">Reiniciar Mazo</button>
+                <button class="btn btn-save" id="saveDeckBtn" disabled>Guardar Mazo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="settingsScreen" class="screen">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h1 class="settings-title">Ajustes</h1>
+                <button class="btn-close" id="backFromSettingsBtn">✕</button>
+            </div>
+
+            <div class="settings-content">
+                <div class="setting-item">
+                    <label class="setting-label">👤 Nombre de Usuario</label>
+                    <div class="setting-input-group">
+                        <input 
+                            type="text" 
+                            id="settingsPlayerName" 
+                            class="setting-input" 
+                            placeholder="Nuevo nombre..."
+                            maxlength="15"
+                        >
+                        <button id="changeNameBtn" class="btn btn-change" disabled>Cambiar</button>
+                    </div>
+                    <p class="current-name">Nombre actual: <span id="currentNameDisplay"></span></p>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">🎮 Estadísticas</label>
+                    <div class="stats-display">
+                        <div class="stat-row">
+                            <span class="stat-label">Victorias:</span>
+                            <span class="stat-value" id="settingsVictories">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Estrellas:</span>
+                            <span class="stat-value" id="settingsStars">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Monedas:</span>
+                            <span class="stat-value" id="settingsCoins">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">🗑️ Datos del Juego</label>
+                    <button id="resetGameBtn" class="btn btn-danger">Reiniciar Todo</button>
+                    <p class="warning-text">⚠️ Esto borrará todo tu progreso</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

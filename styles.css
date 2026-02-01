@@ -1,0 +1,1044 @@
+/* Reset y variables */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --mario-red: #E52521;
+    --mario-blue: #049CD8;
+    --mario-yellow: #FBD000;
+    --mario-green: #43B047;
+    --mario-orange: #F8981D;
+    --mario-purple: #8F1AC4;
+    --dark-bg: #2B2B2B;
+    --light-text: #ffffff;
+    --shadow: rgba(0, 0, 0, 0.4);
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    background: linear-gradient(135deg, #049CD8 0%, #0066CC 100%);
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
+    position: relative;
+    width: 100vw;
+    max-width: 100%;
+}
+
+/* Background Animation */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(120, 200, 80, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 90%, rgba(227, 6, 19, 0.1) 0%, transparent 50%);
+    animation: bgFloat 20s ease-in-out infinite;
+}
+
+@keyframes bgFloat {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(20px, 20px); }
+}
+
+/* Screen Management */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100vw;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    z-index: 1;
+    overflow-x: hidden;
+}
+
+.screen.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 10;
+}
+
+/* ===== SPLASH SCREEN ===== */
+#splashScreen {
+    background: linear-gradient(135deg, #049CD8 0%, #0066CC 100%);
+}
+
+.splash-content {
+    text-align: center;
+    animation: fadeInScale 1s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.game-logo {
+    margin-bottom: 40px;
+}
+
+.logo-text {
+    font-size: 5rem;
+    font-weight: bold;
+    letter-spacing: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    text-shadow: 
+        3px 3px 0 var(--mario-red),
+        6px 6px 0 var(--shadow);
+}
+
+.logo-text .letter {
+    display: inline-block;
+    animation: bounce 0.6s ease-in-out infinite;
+    color: var(--mario-yellow);
+}
+
+.logo-text .letter.m { animation-delay: 0s; }
+.logo-text .letter.a { animation-delay: 0.1s; }
+.logo-text .letter.r { animation-delay: 0.2s; }
+.logo-text .letter.i { animation-delay: 0.3s; }
+.logo-text .letter.o { animation-delay: 0.4s; }
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.subtitle {
+    font-size: 3rem;
+    color: var(--light-text);
+    text-shadow: 2px 2px 4px var(--shadow);
+    letter-spacing: 15px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.loading-bar {
+    width: 300px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    margin: 40px auto 20px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px var(--shadow);
+}
+
+.loading-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--mario-yellow), var(--mario-orange));
+    border-radius: 10px;
+    animation: loading 2s ease-out forwards;
+    box-shadow: 0 0 10px var(--mario-yellow);
+}
+
+@keyframes loading {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+.loading-text {
+    color: var(--light-text);
+    font-size: 1.2rem;
+    animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ===== WELCOME SCREEN ===== */
+#welcomeScreen {
+    background: linear-gradient(135deg, #FBD000 0%, #F8981D 100%);
+}
+
+.welcome-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px 20px;
+    border-radius: 30px;
+    box-shadow: 0 20px 60px var(--shadow);
+    text-align: center;
+    animation: slideInUp 0.6s ease-out;
+    max-width: 90%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.welcome-header {
+    margin-bottom: 40px;
+}
+
+.welcome-title {
+    font-size: 3rem;
+    color: var(--mario-red);
+    text-shadow: 2px 2px 4px var(--shadow);
+    margin-bottom: 20px;
+}
+
+.mario-icons {
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.mario-icons span {
+    display: inline-block;
+    animation: rotate 3s linear infinite;
+}
+
+.mario-icons .coin { animation-delay: 0s; }
+.mario-icons .mushroom { animation-delay: 1s; }
+.mario-icons .star { animation-delay: 2s; }
+
+@keyframes rotate {
+    0% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(10deg) scale(1.2); }
+    50% { transform: rotate(-10deg) scale(1); }
+    75% { transform: rotate(10deg) scale(1.2); }
+    100% { transform: rotate(0deg) scale(1); }
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-label {
+    font-size: 1.5rem;
+    color: var(--dark-bg);
+    font-weight: bold;
+}
+
+.player-input {
+    padding: 15px 25px;
+    font-size: 1.3rem;
+    border: 3px solid var(--mario-blue);
+    border-radius: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.player-input:focus {
+    border-color: var(--mario-yellow);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    transform: scale(1.05);
+}
+
+.btn {
+    padding: 15px 40px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn:not(:disabled):hover {
+    transform: scale(1.1);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--mario-red), var(--mario-orange));
+    color: var(--light-text);
+    box-shadow: 0 5px 15px var(--shadow);
+}
+
+.btn-primary:not(:disabled):hover {
+    box-shadow: 0 8px 25px rgba(227, 6, 19, 0.5);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--mario-blue), #0066aa);
+    color: var(--light-text);
+    box-shadow: 0 5px 15px var(--shadow);
+}
+
+/* ===== MAIN MENU ===== */
+#mainMenu {
+    background: linear-gradient(135deg, #43B047 0%, #2E7D32 100%);
+}
+
+.menu-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px 20px;
+    border-radius: 30px;
+    box-shadow: 0 20px 60px var(--shadow);
+    max-width: 500px;
+    width: 90%;
+    animation: slideInUp 0.6s ease-out;
+    box-sizing: border-box;
+}
+
+.menu-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.menu-title {
+    font-size: 2.5rem;
+    color: var(--mario-red);
+    text-shadow: 2px 2px 4px var(--shadow);
+    margin-bottom: 10px;
+}
+
+.player-greeting {
+    font-size: 1.2rem;
+    color: var(--dark-bg);
+}
+
+.player-name-display {
+    color: var(--mario-blue);
+    font-weight: bold;
+}
+
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.menu-btn {
+    padding: 20px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 1.3rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-btn:hover {
+    transform: translateY(-5px);
+}
+
+.btn-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    z-index: 2;
+}
+
+.btn-emoji {
+    font-size: 2rem;
+}
+
+.btn-label {
+    flex: 1;
+    text-align: left;
+}
+
+.btn-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.menu-btn:hover .btn-glow {
+    width: 300px;
+    height: 300px;
+}
+
+.battle-btn {
+    background: linear-gradient(135deg, #E52521, #C41E3A);
+    color: white;
+    box-shadow: 0 5px 15px rgba(229, 37, 33, 0.5);
+}
+
+.deck-btn {
+    background: linear-gradient(135deg, #049CD8, #0066CC);
+    color: white;
+    box-shadow: 0 5px 15px rgba(4, 156, 216, 0.5);
+}
+
+.collection-btn {
+    background: linear-gradient(135deg, #FBD000, #F8981D);
+    color: white;
+    box-shadow: 0 5px 15px rgba(251, 208, 0, 0.5);
+}
+
+.settings-btn {
+    background: linear-gradient(135deg, #8F1AC4, #6B1596);
+    color: white;
+    box-shadow: 0 5px 15px rgba(143, 26, 196, 0.5);
+}
+
+.menu-footer {
+    border-top: 2px solid #e0e0e0;
+    padding-top: 20px;
+}
+
+.player-stats {
+    display: flex;
+    justify-content: space-around;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--dark-bg);
+}
+
+/* ===== BATTLE SCREEN (Placeholder) ===== */
+#battleScreen {
+    background: linear-gradient(135deg, #E52521 0%, #C41E3A 100%);
+}
+
+.battle-container {
+    text-align: center;
+    color: white;
+}
+
+.battle-title {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 6px var(--shadow);
+}
+
+.battle-message {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+}
+
+/* ===== DECK SCREEN ===== */
+#deckScreen {
+    background: linear-gradient(135deg, #049CD8 0%, #0066CC 100%);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+}
+
+.deck-builder {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 15px;
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 0 20px 60px var(--shadow);
+    animation: slideInUp 0.6s ease-out;
+    box-sizing: border-box;
+}
+
+.deck-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+.deck-title {
+    font-size: 1.8rem;
+    color: var(--mario-red);
+    text-shadow: 2px 2px 4px var(--shadow);
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-close {
+    background: var(--mario-red);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close:hover {
+    background: #b30510;
+    transform: rotate(90deg) scale(1.1);
+}
+
+/* Deck Slots */
+.deck-slots {
+    background: linear-gradient(135deg, #E52521 0%, #C41E3A 100%);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.slot-label {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.slots-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.card-slot {
+    aspect-ratio: 2/3;
+    border: 3px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-slot.empty .slot-number {
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: bold;
+}
+
+.card-slot.filled {
+    border-style: solid;
+    border-color: var(--mario-yellow);
+    background: white;
+}
+
+.card-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.card-slot .remove-card {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--mario-red);
+    color: white;
+    border: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.card-slot.filled:hover .remove-card {
+    display: flex;
+}
+
+/* Characters Section */
+.characters-section {
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--dark-bg);
+    margin-bottom: 12px;
+}
+
+.characters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 10px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.character-card {
+    aspect-ratio: 2/3;
+    border: 3px solid var(--mario-blue);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: white;
+}
+
+.character-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px var(--shadow);
+}
+
+.character-card.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+}
+
+.character-card.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.character-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.character-card .character-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    padding: 5px;
+    color: white;
+}
+
+.character-card .character-name {
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.character-card .character-power {
+    font-size: 0.7rem;
+    text-align: center;
+    color: var(--mario-yellow);
+}
+
+/* Deck Actions */
+.deck-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-reset {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-reset:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px var(--shadow);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, var(--mario-green), #5da855);
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-save:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(120, 200, 80, 0.5);
+}
+
+.btn-save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===== SETTINGS SCREEN ===== */
+#settingsScreen {
+    background: linear-gradient(135deg, #8F1AC4 0%, #6B1596 100%);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+}
+
+.settings-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 0 20px 60px var(--shadow);
+    animation: slideInUp 0.6s ease-out;
+    box-sizing: border-box;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.settings-title {
+    font-size: 2rem;
+    color: var(--mario-purple);
+    text-shadow: 2px 2px 4px var(--shadow);
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.setting-item {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 15px;
+    border: 2px solid #e0e0e0;
+}
+
+.setting-label {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--dark-bg);
+    display: block;
+    margin-bottom: 12px;
+    word-break: break-word;
+}
+
+.setting-input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.setting-input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 2px solid var(--mario-blue);
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.setting-input:focus {
+    border-color: var(--mario-yellow);
+    box-shadow: 0 0 10px rgba(251, 208, 0, 0.3);
+}
+
+.btn-change {
+    background: linear-gradient(135deg, var(--mario-green), #2E7D32);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.btn-change:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(67, 176, 71, 0.4);
+}
+
+.btn-change:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.current-name {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.current-name span {
+    color: var(--mario-blue);
+    font-weight: bold;
+}
+
+.stats-display {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+}
+
+.stat-row .stat-label {
+    font-size: 1.1rem;
+    color: var(--dark-bg);
+}
+
+.stat-row .stat-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--mario-blue);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--mario-red), #C41E3A);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-danger:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(229, 37, 33, 0.4);
+}
+
+.warning-text {
+    color: #d32f2f;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .logo-text {
+        font-size: 2.5rem;
+        letter-spacing: 5px;
+    }
+    
+    .subtitle {
+        font-size: 1.5rem;
+        letter-spacing: 10px;
+    }
+    
+    .welcome-title {
+        font-size: 2rem;
+    }
+    
+    .menu-title {
+        font-size: 1.8rem;
+    }
+    
+    .welcome-container {
+        padding: 25px 15px;
+        max-width: 95%;
+    }
+    
+    .menu-container {
+        padding: 25px 15px;
+        width: 95%;
+    }
+    
+    .settings-container {
+        padding: 15px;
+        width: 95%;
+    }
+    
+    .deck-builder {
+        padding: 12px;
+        width: 95%;
+    }
+    
+    .settings-title,
+    .deck-title {
+        font-size: 1.5rem;
+    }
+    
+    .btn-close {
+        width: 35px;
+        height: 35px;
+        font-size: 1.2rem;
+    }
+    
+    .setting-input-group {
+        flex-direction: column;
+    }
+    
+    .btn-change {
+        width: 100%;
+    }
+    
+    .characters-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 8px;
+        max-height: 300px;
+    }
+    
+    .slots-container {
+        gap: 8px;
+    }
+    
+    .menu-btn {
+        padding: 15px;
+        font-size: 1.1rem;
+    }
+    
+    .btn-emoji {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-text {
+        font-size: 2rem;
+        letter-spacing: 3px;
+    }
+    
+    .subtitle {
+        font-size: 1.2rem;
+        letter-spacing: 8px;
+    }
+    
+    .welcome-title {
+        font-size: 1.8rem;
+    }
+    
+    .menu-title {
+        font-size: 1.5rem;
+    }
+    
+    .settings-title,
+    .deck-title {
+        font-size: 1.3rem;
+    }
+    
+    .player-input {
+        font-size: 1.1rem;
+        padding: 12px 20px;
+    }
+    
+    .btn {
+        font-size: 1.2rem;
+        padding: 12px 30px;
+    }
+    
+    .characters-grid {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 6px;
+    }
+    
+    .character-card .character-name {
+        font-size: 0.7rem;
+    }
+    
+    .setting-item {
+        padding: 12px;
+    }
+    
+    .setting-label {
+        font-size: 1rem;
+    }
+    
+    .setting-input {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+    
+    .btn-change {
+        font-size: 0.95rem;
+        padding: 10px 15px;
+    }
+}
