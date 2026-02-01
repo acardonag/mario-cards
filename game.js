@@ -991,21 +991,30 @@ function displayOpponentHand(cardCount) {
 
 // Display player hand with points in battle arena
 function displayPlayerHand(deck, points) {
+    console.log('🃏 displayPlayerHand called with:', { deck, points, isOnline: GameState.isOnlineGame });
+    
     const handContainer = document.getElementById('playerHand');
-    if (!handContainer) return;
+    if (!handContainer) {
+        console.error('❌ playerHand container not found');
+        return;
+    }
     
     handContainer.innerHTML = '';
     
     // If no parameters provided, use CPU battle mode data
     if (!deck && GameState.battle) {
+        console.log('📦 Using CPU battle deck:', GameState.battle.playerDeck);
         deck = GameState.battle.playerDeck;
         // In CPU mode, cards already have battlePoints property
     }
     
     if (!deck) {
         console.error('❌ No deck provided to displayPlayerHand');
+        console.error('GameState.battle:', GameState.battle);
         return;
     }
+    
+    console.log('✅ Deck ready to display:', deck);
     
     deck.forEach((card, index) => {
         // Skip used cards in CPU mode

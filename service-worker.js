@@ -1,5 +1,5 @@
 // Service Worker for Mario Cards PWA
-const CACHE_NAME = 'mario-cards-v2';
+const CACHE_NAME = 'mario-cards-v3';
 const urlsToCache = [
   '/',
   '/index.html',
