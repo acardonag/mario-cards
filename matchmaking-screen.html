@@ -1,0 +1,22 @@
+<!-- Matchmaking Screen HTML -->
+<!-- Add this to your index.html before the closing body tag -->
+
+<!-- Matchmaking Screen -->
+<div id="matchmakingScreen" class="screen">
+    <div class="matchmaking-container">
+        <h1 class="matchmaking-title">Buscando Oponente...</h1>
+        
+        <div class="matchmaking-spinner">
+            <div class="spinner"></div>
+        </div>
+        
+        <p class="matchmaking-status">🔍 Buscando jugadores en línea</p>
+        
+        <div class="matchmaking-timer">
+            <p>Tiempo de espera: <span id="matchmakingTimer">0</span>s</p>
+            <p class="matchmaking-hint">Si no encontramos oponente, jugarás vs CPU</p>
+        </div>
+        
+        <button class="btn btn-secondary" id="cancelMatchmakingBtn">Cancelar</button>
+    </div>
+</div>

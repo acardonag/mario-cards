@@ -1,0 +1,92 @@
+/* Matchmaking Screen Styles */
+
+#matchmakingScreen {
+    background: linear-gradient(135deg, #2B2B2B 0%, #1a1a1a 100%);
+}
+
+.matchmaking-container {
+    text-align: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 30px;
+    box-shadow: 0 20px 60px var(--shadow);
+    max-width: 500px;
+    width: 90%;
+}
+
+.matchmaking-title {
+    font-size: 2rem;
+    color: var(--mario-blue);
+    margin-bottom: 30px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.matchmaking-spinner {
+    margin: 30px 0;
+}
+
+.spinner {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border: 8px solid rgba(4, 156, 216, 0.2);
+    border-top: 8px solid var(--mario-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.matchmaking-status {
+    font-size: 1.3rem;
+    color: var(--dark-bg);
+    margin: 20px 0;
+}
+
+.matchmaking-timer {
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+}
+
+.matchmaking-timer p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.matchmaking-timer span {
+    font-weight: bold;
+    color: var(--mario-blue);
+    font-size: 1.3rem;
+}
+
+.matchmaking-hint {
+    font-size: 0.9rem !important;
+    color: #999 !important;
+    font-style: italic;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .matchmaking-container {
+        padding: 25px 15px;
+    }
+    
+    .matchmaking-title {
+        font-size: 1.5rem;
+    }
+    
+    .spinner {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .matchmaking-status {
+        font-size: 1.1rem;
+    }
+}

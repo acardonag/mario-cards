@@ -12,6 +12,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="battle-styles.css">
+    <link rel="stylesheet" href="matchmaking-styles.css">
 </head>
 <body>
     <!-- Splash Screen -->
@@ -313,6 +314,30 @@
         </div>
     </div>
 
+    <!-- Matchmaking Screen -->
+    <div id="matchmakingScreen" class="screen">
+        <div class="matchmaking-container">
+            <h1 class="matchmaking-title">Buscando Oponente...</h1>
+            
+            <div class="matchmaking-spinner">
+                <div class="spinner"></div>
+            </div>
+            
+            <p class="matchmaking-status">🔍 Buscando jugadores en línea</p>
+            
+            <div class="matchmaking-timer">
+                <p>Tiempo de espera: <span id="matchmakingTimer">0</span>s</p>
+                <p class="matchmaking-hint">Si no encontramos oponente, jugarás vs CPU</p>
+            </div>
+            
+            <button class="btn btn-secondary" id="cancelMatchmakingBtn">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Antes de </body> -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-matchmaking.js"></script>
     <script src="game.js"></script>
 </body>
 </html>

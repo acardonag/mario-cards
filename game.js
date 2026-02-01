@@ -60,6 +60,16 @@ function showScreen(screenId) {
 
 // Initialize Game
 function initGame() {
+    // Initialize Firebase for multiplayer
+    if (typeof initFirebase === 'function') {
+        const firebaseInitialized = initFirebase();
+        if (firebaseInitialized) {
+            console.log('✅ Multiplayer online habilitado');
+        } else {
+            console.log('⚠️ Multiplayer online no disponible, solo vs CPU');
+        }
+    }
+    
     // Try to load saved game
     const hasExistingPlayer = loadGame();
     
@@ -148,7 +158,7 @@ function setupMainMenu() {
             showNotification('⚠️ Debes definir tu mazo antes de batallar');
             return;
         }
-        startBattle();
+        startAutomaticMatchmaking();
     });
 
     // Deck Button
@@ -860,6 +870,387 @@ function showInstallNotification() {
         });
     }, 3000);
 }
+
+// ============================================================
+// FIREBASE MATCHMAKING HELPER FUNCTIONS
+// ============================================================
+
+let matchmakingTimerInterval = null;
+
+// Show matchmaking screen
+function showMatchmakingScreen() {
+    console.log('Mostrando pantalla de matchmaking');
+    showScreen('matchmakingScreen');
+    const timerElement = document.getElementById('matchmakingTimer');
+    if (timerElement) {
+        timerElement.textContent = '0';
+    }
+    
+    // Add cancel button listener
+    const cancelBtn = document.getElementById('cancelMatchmakingBtn');
+    if (cancelBtn) {
+        cancelBtn.onclick = () => {
+            console.log('Matchmaking cancelado por el usuario');
+            stopMatchmakingTimer();
+            
+            // Cancel matchmaking in Firebase
+            if (typeof cancelMatchmaking === 'function') {
+                cancelMatchmaking();
+            }
+            
+            showScreen('mainMenu');
+        };
+    }
+}
+
+// Hide matchmaking screen
+function hideMatchmakingScreen() {
+    console.log('Ocultando pantalla de matchmaking');
+    stopMatchmakingTimer();
+    // Don't change screen here - let the calling function decide
+}
+
+// Start matchmaking timer
+function startMatchmakingTimer() {
+    const timerElement = document.getElementById('matchmakingTimer');
+    if (!timerElement) return;
+    
+    let seconds = 0;
+    timerElement.textContent = '0';
+    
+    matchmakingTimerInterval = setInterval(() => {
+        seconds++;
+        timerElement.textContent = seconds.toString();
+    }, 1000);
+}
+
+// Stop matchmaking timer
+function stopMatchmakingTimer() {
+    if (matchmakingTimerInterval) {
+        clearInterval(matchmakingTimerInterval);
+        matchmakingTimerInterval = null;
+    }
+}
+
+// Show online battle (replaces startBattle for online games)
+function showOnlineBattle(gameData, playerRole) {
+    console.log('Iniciando batalla online:', { gameData, playerRole });
+    
+    // Store online game data
+    GameState.isOnlineGame = true;
+    GameState.onlineGameId = gameData.gameId;
+    GameState.playerRole = playerRole;
+    GameState.opponentData = gameData[playerRole === 'player1' ? 'player2' : 'player1'];
+    
+    // Set up battle state from online data
+    GameState.battleState = {
+        currentRound: gameData.currentRound || 1,
+        myDeck: gameData[playerRole].deck,
+        opponentDeck: gameData[playerRole === 'player1' ? 'player2' : 'player1'].deck,
+        myPoints: gameData[playerRole].points,
+        opponentPoints: gameData[playerRole === 'player1' ? 'player2' : 'player1'].points,
+        myRoundsWon: gameData[playerRole].roundsWon || 0,
+        opponentRoundsWon: gameData[playerRole === 'player1' ? 'player2' : 'player1'].roundsWon || 0,
+        mySelectedCard: null,
+        opponentSelectedCard: null,
+        isRoundComplete: false
+    };
+    
+    // Show battle presentation screen
+    showScreen('battlePresentation');
+    
+    // Display opponent info
+    const opponentNameEl = document.getElementById('opponentName');
+    if (opponentNameEl) {
+        opponentNameEl.textContent = GameState.opponentData.name || 'Oponente';
+    }
+    
+    // Show opponent's deck
+    displayOpponentDeck(GameState.battleState.opponentDeck);
+    
+    // Set up continue button to battle arena
+    const continueBtn = document.getElementById('continueToBattleBtn');
+    if (continueBtn) {
+        continueBtn.onclick = () => {
+            playSound('click');
+            showScreen('battleArena');
+            setupOnlineBattleArena();
+        };
+    }
+}
+
+// Setup online battle arena
+function setupOnlineBattleArena() {
+    const state = GameState.battleState;
+    
+    // Display round number
+    const roundDisplay = document.getElementById('roundDisplay');
+    if (roundDisplay) {
+        roundDisplay.textContent = `Ronda ${state.currentRound}/4`;
+    }
+    
+    // Display scores
+    updateScoreDisplay();
+    
+    // Display player's hand
+    displayPlayerHand(state.myDeck, state.myPoints);
+    
+    // Display opponent's hand (face down)
+    displayOpponentHand(state.opponentDeck.length);
+    
+    // Clear battlefield
+    const playerField = document.getElementById('playerCardField');
+    const opponentField = document.getElementById('opponentCardField');
+    if (playerField) playerField.innerHTML = '';
+    if (opponentField) opponentField.innerHTML = '';
+    
+    // Add online card selection handlers
+    const handCards = document.querySelectorAll('.hand-card');
+    handCards.forEach((card, index) => {
+        card.onclick = () => {
+            if (state.mySelectedCard !== null) return; // Already selected
+            
+            playSound('select');
+            selectOnlineCard(index);
+        };
+    });
+}
+
+// Select card in online battle
+function selectOnlineCard(cardIndex) {
+    const state = GameState.battleState;
+    state.mySelectedCard = cardIndex;
+    
+    // Send selection to Firebase
+    if (typeof sendCardSelection === 'function') {
+        sendCardSelection(GameState.onlineGameId, GameState.playerRole, cardIndex);
+    }
+    
+    // Show selected card on field
+    const selectedCard = state.myDeck[cardIndex];
+    const selectedPoints = state.myPoints[cardIndex];
+    
+    const playerField = document.getElementById('playerCardField');
+    if (playerField) {
+        playerField.innerHTML = `
+            <div class="field-card">
+                <img src="src/images/${selectedCard}.png" alt="${selectedCard}">
+                <div class="card-power">${selectedPoints}</div>
+            </div>
+        `;
+    }
+    
+    // Disable hand cards
+    const handCards = document.querySelectorAll('.hand-card');
+    handCards.forEach(card => {
+        card.style.pointerEvents = 'none';
+        card.style.opacity = '0.6';
+    });
+    
+    // Show waiting message
+    showWaitingForOpponent();
+}
+
+// Show waiting for opponent message
+function showWaitingForOpponent() {
+    const battleArena = document.getElementById('battleArena');
+    let waitingMsg = document.getElementById('waitingMessage');
+    
+    if (!waitingMsg) {
+        waitingMsg = document.createElement('div');
+        waitingMsg.id = 'waitingMessage';
+        waitingMsg.className = 'waiting-message';
+        waitingMsg.innerHTML = '⏳ Esperando al oponente...';
+        battleArena.appendChild(waitingMsg);
+    }
+}
+
+// Update online battle UI when game state changes
+function updateOnlineBattleUI(gameData, playerRole) {
+    console.log('Actualizando UI de batalla online:', { gameData, playerRole });
+    
+    const state = GameState.battleState;
+    const otherRole = playerRole === 'player1' ? 'player2' : 'player1';
+    
+    // Update battle state from Firebase data
+    state.currentRound = gameData.currentRound;
+    state.myRoundsWon = gameData[playerRole].roundsWon || 0;
+    state.opponentRoundsWon = gameData[otherRole].roundsWon || 0;
+    
+    // Check if opponent has selected
+    const opponentSelection = gameData[otherRole].currentSelection;
+    const mySelection = gameData[playerRole].currentSelection;
+    
+    // If both players have selected, show the reveal
+    if (opponentSelection !== null && mySelection !== null && !state.isRoundComplete) {
+        state.isRoundComplete = true;
+        state.opponentSelectedCard = opponentSelection;
+        revealOnlineRound(gameData, playerRole);
+    }
+    
+    // Update scores
+    updateScoreDisplay();
+}
+
+// Reveal online round results
+function revealOnlineRound(gameData, playerRole) {
+    const state = GameState.battleState;
+    const otherRole = playerRole === 'player1' ? 'player2' : 'player1';
+    
+    // Remove waiting message
+    const waitingMsg = document.getElementById('waitingMessage');
+    if (waitingMsg) waitingMsg.remove();
+    
+    // Show opponent's card
+    const opponentCard = state.opponentDeck[state.opponentSelectedCard];
+    const opponentPoints = state.opponentPoints[state.opponentSelectedCard];
+    
+    const opponentField = document.getElementById('opponentCardField');
+    if (opponentField) {
+        opponentField.innerHTML = `
+            <div class="field-card card-reveal">
+                <img src="src/images/${opponentCard}.png" alt="${opponentCard}">
+                <div class="card-power">${opponentPoints}</div>
+            </div>
+        `;
+    }
+    
+    // Determine winner
+    const myPoints = state.myPoints[state.mySelectedCard];
+    const myWon = myPoints > opponentPoints;
+    const tie = myPoints === opponentPoints;
+    
+    setTimeout(() => {
+        let resultText = '';
+        if (tie) {
+            resultText = '🤝 ¡EMPATE!';
+            playSound('tie');
+        } else if (myWon) {
+            resultText = '🎉 ¡GANASTE LA RONDA!';
+            playSound('win');
+        } else {
+            resultText = '😔 Perdiste la ronda';
+            playSound('lose');
+        }
+        
+        // Show result message
+        showRoundResult(resultText);
+        
+        // Continue to next round or show final results
+        setTimeout(() => {
+            if (state.currentRound < 4) {
+                // Remove used cards from decks
+                state.myDeck.splice(state.mySelectedCard, 1);
+                state.myPoints.splice(state.mySelectedCard, 1);
+                state.opponentDeck.splice(state.opponentSelectedCard, 1);
+                state.opponentPoints.splice(state.opponentSelectedCard, 1);
+                
+                // Reset for next round
+                state.mySelectedCard = null;
+                state.opponentSelectedCard = null;
+                state.isRoundComplete = false;
+                
+                // Setup next round
+                setupOnlineBattleArena();
+            } else {
+                // Battle complete - show results
+                showOnlineResults(state.myRoundsWon, state.opponentRoundsWon);
+            }
+        }, 3000);
+    }, 1000);
+}
+
+// Show online battle results
+function showOnlineResults(myRoundsWon, opponentRoundsWon) {
+    const won = myRoundsWon > opponentRoundsWon;
+    const tie = myRoundsWon === opponentRoundsWon;
+    
+    // Update stats if won
+    if (won) {
+        GameState.victories++;
+        GameState.stars += 3;
+        GameState.coins += 100;
+    } else if (tie) {
+        GameState.stars += 1;
+        GameState.coins += 30;
+    }
+    
+    saveGame();
+    
+    // Show results screen
+    showScreen('battleResults');
+    
+    const resultTitle = document.getElementById('resultTitle');
+    const resultSubtitle = document.getElementById('resultSubtitle');
+    const rewardsDiv = document.getElementById('rewardsDisplay');
+    
+    if (won) {
+        resultTitle.textContent = '¡VICTORIA!';
+        resultTitle.style.color = '#43B047';
+        resultSubtitle.textContent = `Ganaste ${myRoundsWon}-${opponentRoundsWon}`;
+        rewardsDiv.innerHTML = `
+            <div class="reward-item">⭐ +3 Estrellas</div>
+            <div class="reward-item">🪙 +100 Monedas</div>
+        `;
+    } else if (tie) {
+        resultTitle.textContent = '¡EMPATE!';
+        resultTitle.style.color = '#F8981D';
+        resultSubtitle.textContent = `${myRoundsWon}-${opponentRoundsWon}`;
+        rewardsDiv.innerHTML = `
+            <div class="reward-item">⭐ +1 Estrella</div>
+            <div class="reward-item">🪙 +30 Monedas</div>
+        `;
+    } else {
+        resultTitle.textContent = 'DERROTA';
+        resultTitle.style.color = '#E52521';
+        resultSubtitle.textContent = `Perdiste ${myRoundsWon}-${opponentRoundsWon}`;
+        rewardsDiv.innerHTML = `<div class="reward-item">Sigue intentando...</div>`;
+    }
+    
+    // Setup return button
+    const returnBtn = document.getElementById('returnMenuBtn');
+    if (returnBtn) {
+        returnBtn.onclick = () => {
+            playSound('click');
+            
+            // Clean up online game state
+            GameState.isOnlineGame = false;
+            GameState.onlineGameId = null;
+            GameState.playerRole = null;
+            GameState.opponentData = null;
+            GameState.battleState = null;
+            
+            showScreen('mainMenu');
+        };
+    }
+}
+
+// Helper: Show round result message
+function showRoundResult(text) {
+    const battleArena = document.getElementById('battleArena');
+    const resultMsg = document.createElement('div');
+    resultMsg.className = 'round-result-message';
+    resultMsg.textContent = text;
+    battleArena.appendChild(resultMsg);
+    
+    setTimeout(() => {
+        resultMsg.remove();
+    }, 2500);
+}
+
+// Helper: Update score display
+function updateScoreDisplay() {
+    const state = GameState.battleState;
+    const myScoreEl = document.getElementById('myScore');
+    const opponentScoreEl = document.getElementById('opponentScore');
+    
+    if (myScoreEl) myScoreEl.textContent = state.myRoundsWon;
+    if (opponentScoreEl) opponentScoreEl.textContent = state.opponentRoundsWon;
+}
+
+// ============================================================
+// END FIREBASE MATCHMAKING FUNCTIONS
+// ============================================================
 
 // Initialize game when page loads
 window.addEventListener('DOMContentLoaded', () => {
