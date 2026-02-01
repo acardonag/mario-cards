@@ -256,20 +256,34 @@ function handleOnlineGameUpdate(gameData, playerRole) {
     
     // Both players ready, show game
     if (gameData.player1.ready && gameData.player2.ready) {
-        if (GameState.currentScreen !== 'battleScreen') {
+        // Only call showOnlineBattle once when game starts
+        if (GameState.currentScreen !== 'battleScreen' && !GameState.isOnlineGameStarted) {
+            GameState.isOnlineGameStarted = true;
             showOnlineBattle(gameData, playerRole);
+            return; // Exit to avoid calling resolveOnlineRound before setup completes
         }
         
         // Update battle UI
-        updateOnlineBattleUI(gameData, playerRole);
+        if (GameState.currentScreen === 'battleScreen') {
+            updateOnlineBattleUI(gameData, playerRole);
+        }
         
-        // Check if both players selected cards
-        if (myData.currentSelection !== null && opponentData.currentSelection !== null) {
+        // Check if both players selected cards (only resolve once per round)
+        const roundKey = `${gameData.gameId}_${gameData.currentRound}`;
+        if (myData.currentSelection !== null && 
+            opponentData.currentSelection !== null && 
+            !GameState.resolvedRounds?.includes(roundKey)) {
+            
+            // Mark this round as being resolved
+            if (!GameState.resolvedRounds) GameState.resolvedRounds = [];
+            GameState.resolvedRounds.push(roundKey);
+            
             resolveOnlineRound(gameData, playerRole);
         }
         
         // Check if game finished
-        if (gameData.currentRound > 4) {
+        if (gameData.currentRound > 4 && !GameState.onlineGameEnded) {
+            GameState.onlineGameEnded = true;
             endOnlineGame(gameData, playerRole);
         }
     }
@@ -285,13 +299,18 @@ async function sendCardSelection(gameId, playerRole, cardIndex) {
 
 // Resolve online round
 async function resolveOnlineRound(gameData, playerRole) {
+    console.log('🎮 Resolving round', gameData.currentRound, 'for', playerRole);
+    
     const isPlayer1 = playerRole === 'player1';
     const myData = isPlayer1 ? gameData.player1 : gameData.player2;
     const opponentData = isPlayer1 ? gameData.player2 : gameData.player1;
     
+    console.log('My selection:', myData.currentSelection, 'Opponent selection:', opponentData.currentSelection);
+    
     // Show opponent's card reveal
     if (GameState.battleState) {
         GameState.battleState.opponentSelectedCard = opponentData.currentSelection;
+        console.log('Calling revealOnlineRound with opponentSelectedCard:', opponentData.currentSelection);
         revealOnlineRound(gameData, playerRole);
     }
     

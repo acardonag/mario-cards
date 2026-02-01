@@ -459,7 +459,13 @@ function distributePoints(deck) {
 // Distribute points for online games (returns separate arrays)
 function distributePointsForOnline(deck) {
     const totalPoints = 1200;
-    const cardNames = deck.map(card => typeof card === 'string' ? card : card.name);
+    // Extract image filenames (without .png extension) instead of display names
+    const cardNames = deck.map(card => {
+        if (typeof card === 'string') return card;
+        // Extract filename without extension: 'bowser.png' -> 'bowser'
+        const imageName = card.image || card.name;
+        return imageName.replace('.png', '');
+    });
     const points = [];
     
     // Generate random distribution
@@ -948,10 +954,18 @@ function displayOpponentDeck(deck) {
     opponentShowcase.innerHTML = '';
     deck.forEach(card => {
         // Handle both string names and card objects
-        const cardName = typeof card === 'string' ? card : (card.name || card.image || card);
+        let imagePath;
+        if (typeof card === 'string') {
+            // If it's a string, add .png if not present
+            imagePath = card.includes('.png') ? card : `${card}.png`;
+        } else {
+            // If it's an object, use image property
+            imagePath = card.image || `${card.name}.png`;
+        }
+        
         const cardEl = document.createElement('div');
         cardEl.className = 'showcase-card';
-        cardEl.innerHTML = `<img src="src/images/${cardName}.png" alt="${cardName}">`;
+        cardEl.innerHTML = `<img src="src/images/${imagePath}" alt="${card}">`;
         opponentShowcase.appendChild(cardEl);
     });
 }
@@ -977,14 +991,24 @@ function displayPlayerHand(deck, points) {
     
     handContainer.innerHTML = '';
     
-    deck.forEach((cardName, index) => {
+    deck.forEach((card, index) => {
+        // Handle both string names and card objects
+        let imagePath, displayName;
+        if (typeof card === 'string') {
+            imagePath = card.includes('.png') ? card : `${card}.png`;
+            displayName = card.replace('.png', '');
+        } else {
+            imagePath = card.image || `${card.name}.png`;
+            displayName = card.name;
+        }
+        
         const cardEl = document.createElement('div');
         cardEl.className = 'hand-card';
         cardEl.dataset.index = index;
         cardEl.innerHTML = `
-            <img src="src/images/${cardName}.png" alt="${cardName}">
+            <img src="src/images/${imagePath}" alt="${displayName}">
             <div class="hand-card-info">
-                <div class="hand-card-name">${cardName}</div>
+                <div class="hand-card-name">${displayName}</div>
                 <div class="hand-card-points">⚡ ${points[index]}</div>
             </div>
         `;
@@ -1121,11 +1145,12 @@ function selectOnlineCard(cardIndex) {
     // Show selected card on field
     const selectedCard = state.myDeck[cardIndex];
     const selectedPoints = state.myPoints[cardIndex];
+    const imagePath = selectedCard.includes('.png') ? selectedCard : `${selectedCard}.png`;
     
     const playerField = document.getElementById('playerSelectedCard');
     if (playerField) {
         playerField.innerHTML = `
-            <img src="src/images/${selectedCard}.png" alt="${selectedCard}" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="src/images/${imagePath}" alt="${selectedCard}" style="width: 100%; height: 100%; object-fit: cover;">
             <div class="card-power" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 8px 15px; border-radius: 10px; font-size: 1.5rem; font-weight: bold;">${selectedPoints}</div>
         `;
     }
@@ -1207,11 +1232,12 @@ function revealOnlineRound(gameData, playerRole) {
     // Show opponent's card
     const opponentCard = state.opponentDeck[state.opponentSelectedCard];
     const opponentPoints = state.opponentPoints[state.opponentSelectedCard];
+    const opponentImagePath = opponentCard.includes('.png') ? opponentCard : `${opponentCard}.png`;
     
     const opponentField = document.getElementById('cpuSelectedCard');
     if (opponentField) {
         opponentField.innerHTML = `
-            <img src="src/images/${opponentCard}.png" alt="${opponentCard}" style="width: 100%; height: 100%; object-fit: cover;" class="card-reveal">
+            <img src="src/images/${opponentImagePath}" alt="${opponentCard}" style="width: 100%; height: 100%; object-fit: cover;" class="card-reveal">
             <div class="card-power" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 8px 15px; border-radius: 10px; font-size: 1.5rem; font-weight: bold;">${opponentPoints}</div>
         `;
     }
@@ -1326,6 +1352,9 @@ function showOnlineResults(myRoundsWon, opponentRoundsWon) {
             GameState.playerRole = null;
             GameState.opponentData = null;
             GameState.battleState = null;
+            GameState.isOnlineGameStarted = false;
+            GameState.onlineGameEnded = false;
+            GameState.resolvedRounds = [];
             
             showScreen('mainMenu');
         };
