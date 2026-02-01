@@ -45,6 +45,8 @@ const GameState = {
 
 // Screen Management
 function showScreen(screenId) {
+    console.log(`📺 showScreen called with: ${screenId}`);
+    
     // Hide all screens
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -55,6 +57,9 @@ function showScreen(screenId) {
     if (targetScreen) {
         targetScreen.classList.add('active');
         GameState.currentScreen = screenId;
+        console.log(`✅ Screen ${screenId} is now active`);
+    } else {
+        console.error(`❌ Screen ${screenId} not found in DOM!`);
     }
 }
 
@@ -1041,13 +1046,15 @@ function stopMatchmakingTimer() {
 
 // Show online battle (replaces startBattle for online games)
 function showOnlineBattle(gameData, playerRole) {
-    console.log('Iniciando batalla online:', { gameData, playerRole });
+    console.log('🎮 Iniciando batalla online:', { gameData, playerRole });
     
     // Store online game data
     GameState.isOnlineGame = true;
     GameState.onlineGameId = gameData.gameId;
     GameState.playerRole = playerRole;
     GameState.opponentData = gameData[playerRole === 'player1' ? 'player2' : 'player1'];
+    
+    console.log('👥 Opponent data:', GameState.opponentData);
     
     // Set up battle state from online data
     GameState.battleState = {
@@ -1063,16 +1070,29 @@ function showOnlineBattle(gameData, playerRole) {
         isRoundComplete: false
     };
     
-    console.log('Battle state initialized:', GameState.battleState);
+    console.log('⚔️ Battle state initialized:', GameState.battleState);
+    console.log('📺 Current screen before change:', GameState.currentScreen);
+    console.log('🔄 Calling showScreen(battleScreen)...');
     
     // Go directly to battle screen (skip presentation for online)
     showScreen('battleScreen');
+    
+    console.log('📺 Current screen after change:', GameState.currentScreen);
+    console.log('🏗️ Calling setupOnlineBattleArena()...');
+    
     setupOnlineBattleArena();
+    
+    console.log('✅ showOnlineBattle completed');
 }
 
 // Setup online battle arena
 function setupOnlineBattleArena() {
-    console.log('⚔️ Setting up online battle arena');
+    console.log('');
+    console.log('========================================');
+    console.log('⚔️ SETUP ONLINE BATTLE ARENA CALLED');
+    console.log('========================================');
+    console.log('');
+    
     const state = GameState.battleState;
     
     if (!state) {
@@ -1080,7 +1100,7 @@ function setupOnlineBattleArena() {
         return;
     }
     
-    console.log('Battle state:', state);
+    console.log('✅ Battle state exists:', state);
     
     // Display round number
     const roundDisplay = document.getElementById('currentRound');
