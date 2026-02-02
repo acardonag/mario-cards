@@ -270,15 +270,28 @@ function handleOnlineGameUpdate(gameData, playerRole) {
         
         // Check if both players selected cards (only resolve once per round)
         const roundKey = `${gameData.gameId}_${gameData.currentRound}`;
-        if (myData.currentSelection !== null && 
-            opponentData.currentSelection !== null && 
-            !GameState.resolvedRounds?.includes(roundKey)) {
+        const mySelection = myData.currentSelection;
+        const opponentSelection = opponentData.currentSelection;
+        
+        console.log(`🔍 Selection check - My: ${mySelection}, Opponent: ${opponentSelection}, Round: ${gameData.currentRound}`);
+        
+        // Both selections must be a valid number (0, 1, 2, or 3)
+        const bothSelected = (
+            typeof mySelection === 'number' && 
+            typeof opponentSelection === 'number' &&
+            !GameState.resolvedRounds?.includes(roundKey)
+        );
+        
+        if (bothSelected) {
+            console.log('✅ Both players selected, resolving round');
             
             // Mark this round as being resolved
             if (!GameState.resolvedRounds) GameState.resolvedRounds = [];
             GameState.resolvedRounds.push(roundKey);
             
             resolveOnlineRound(gameData, playerRole);
+        } else if (typeof mySelection === 'number') {
+            console.log('⏳ Waiting for opponent selection...');
         }
         
         // Check if game finished
