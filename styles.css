@@ -205,6 +205,19 @@ body::before {
     margin-bottom: 40px;
 }
 
+.welcome-image {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+    animation: floatImage 3s ease-in-out infinite;
+}
+
+@keyframes floatImage {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
 .welcome-title {
     font-size: 3rem;
     color: var(--mario-red);
@@ -325,6 +338,19 @@ body::before {
 .menu-header {
     text-align: center;
     margin-bottom: 30px;
+}
+
+.menu-image {
+    max-width: 200px;
+    width: 100%;
+    height: auto;
+    margin-bottom: 15px;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
 }
 
 .menu-title {

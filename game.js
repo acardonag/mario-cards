@@ -173,12 +173,6 @@ function setupMainMenu() {
         showScreen('deckScreen');
     });
 
-    // Collection Button
-    document.getElementById('collectionBtn').addEventListener('click', () => {
-        playSound('click');
-        showNotification('Colección próximamente disponible');
-    });
-
     // Settings Button
     document.getElementById('settingsBtn').addEventListener('click', () => {
         playSound('click');

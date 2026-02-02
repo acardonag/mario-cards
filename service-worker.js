@@ -1,11 +1,13 @@
 // Service Worker for Mario Cards PWA
-const CACHE_NAME = 'mario-cards-v3';
+const CACHE_NAME = 'mario-cards-v4';
 const urlsToCache = [
   '/',
   '/index.html',
   '/styles.css',
   '/battle-styles.css',
+  '/matchmaking-styles.css',
   '/game.js',
+  '/firebase-matchmaking.js',
   '/src/images/batalla.png',
   '/src/images/birdo.png',
   '/src/images/bowser.png',
@@ -19,6 +21,7 @@ const urlsToCache = [
   '/src/images/kupaalado.png',
   '/src/images/luigui.png',
   '/src/images/mario.png',
+  '/src/images/menu-image.png',
   '/src/images/peach.png',
   '/src/images/reybu.png',
   '/src/images/shygy.png',
@@ -26,6 +29,7 @@ const urlsToCache = [
   '/src/images/toaddete.png',
   '/src/images/wario.png',
   '/src/images/weglear.png',
+  '/src/images/wellcome.png',
   '/src/images/yoshi.png'
 ];
 
